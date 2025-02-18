@@ -4,11 +4,11 @@ function Login({ onClose }) {
     const [emailOrUsername, setEmailOrUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Login data:", { emailOrUsername, password });
-        onClose();
-    };
+    // const handleSubmit = (e) => {
+    //     e.preventDefault();
+    //     console.log("Login data:", { emailOrUsername, password });
+    //     onClose();
+    // };
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm relative">
@@ -19,7 +19,7 @@ function Login({ onClose }) {
                 &times;
             </button>
             <h2 className="text-2xl font-semibold mb-4">Log In</h2>
-            <form onSubmit={handleSubmit}>
+            <form>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700">Email or Username</label>
                     <input
