@@ -3,9 +3,9 @@ import { FaInstagram, FaLinkedin, FaGithub, FaTwitter } from 'react-icons/fa'; /
 
 function Footer() {
     return (
-        <footer className="bg-gray-900 py-6 mt-12">
+        <footer className="bg-[#77557C] py-6 mt-12">
             <div className="container mx-auto text-center text-sm text-gray-400">
-                <p>© 2025 MyBlog. All Rights Reserved.</p>
+                <p>© 2025 BlogIt. All Rights Reserved.</p>
                 <div className="flex justify-center gap-4 mt-4">
                     <Link to="/about" className="hover:text-white">About</Link>
                     <Link to="/contact" className="hover:text-white">Contact</Link>
