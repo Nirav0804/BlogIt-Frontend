@@ -7,7 +7,7 @@ function AppRoutes() {
         <Router>
             <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="posts" element={<PostPage />} />
+                <Route path="/posts" element={<PostPage />} />
             </Routes>
         </Router>
     );

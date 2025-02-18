@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
-import { FaHeart, FaCommentAlt } from "react-icons/fa";
+import { FaHeart, FaCommentAlt, FaChevronUp, FaChevronDown } from "react-icons/fa";
 
 const posts = [
     {
@@ -10,6 +9,9 @@ const posts = [
         content: "This is a detailed blog post. It contains a lot of information on.",
         comments: [
             { id: 1, text: "Great article!", author: "Alice", likes: 12 },
+            { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
+            { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
+            { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
             { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
         ],
     },
@@ -101,7 +103,7 @@ function FeaturedPosts() {
 
                         {/* Post Content */}
                         <p
-                            className={`mt-4 text-gray-700 transition-all duration-500 ease-in-out ${expandedPost === post.id ? "opacity-100 max-h-none" : "opacity-50 max-h-48 overflow-hidden"
+                            className={`mt-4 text-black transition-all duration-500 ease-in-out ${expandedPost === post.id ? "opacity-100 max-h-none" : "opacity-100 max-h-48 overflow-hidden"
                                 }`}
                         >
                             {expandedPost === post.id ? post.content : truncateContent(post.content)}
@@ -111,9 +113,12 @@ function FeaturedPosts() {
                         {post.content.split(" ").length > 70 && (
                             <button
                                 onClick={() => toggleReadMore(post.id)}
-                                className="text-blue-500 font-medium mt-4 block"
+                                className="text-blue-500 font-medium mt-4 flex items-center"
                             >
                                 {expandedPost === post.id ? "Read Less" : "Read More"}
+                                <span className="ml-2">
+                                    {expandedPost === post.id ? <FaChevronUp /> : <FaChevronDown />}
+                                </span>
                             </button>
                         )}
 
