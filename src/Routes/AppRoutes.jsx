@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "../Pages/LandingPage";
 import PostPage from "../Pages/PostPage";
-
 function AppRoutes() {
     return (
         <Router>

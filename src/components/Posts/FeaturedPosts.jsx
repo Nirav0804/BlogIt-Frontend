@@ -82,12 +82,11 @@ function FeaturedPosts() {
                 return post;
             });
             setNewComment("");
-            // Optional: Update state with new posts, e.g., `setPosts(updatedPosts);`
         }
     };
 
     const truncateContent = (content) => {
-        const wordLimit = 70; // Update word limit to 70
+        const wordLimit = 70;
         const words = content.split(" ");
         return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : content;
     };
