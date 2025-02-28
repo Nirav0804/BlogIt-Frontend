@@ -8,13 +8,6 @@ function Navbar({ onOpenSignUpModal, onOpenLoginModal }) {
                 <Link to="/" className="flex items-center gap-x-2">
                     <span className="text-3xl font-bold text-white">BlogIt</span>
                 </Link>
-
-                <nav className="space-x-6 hidden md:flex">
-                    <Link to="/" className="hover:text-gray-300">Home</Link>
-                    <Link to="/about" className="hover:text-gray-300">About</Link>
-                    <Link to="/contact" className="hover:text-gray-300">Contact</Link>
-                </nav>
-
                 <div className="space-x-4">
                     <button
                         onClick={onOpenLoginModal} // Open Login Modal

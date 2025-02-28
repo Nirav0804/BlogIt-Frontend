@@ -1,17 +1,14 @@
 import { useState } from "react";
-import { FaHeart, FaCommentAlt, FaChevronUp, FaChevronDown } from "react-icons/fa";
+import { FaHeart, FaCommentAlt, FaChevronUp, FaChevronDown, FaUserCircle } from "react-icons/fa";
 
 const posts = [
     {
         id: 1,
         title: "How to Build a Blog",
         author: "John Doe",
-        content: "This is a detailed blog post. It contains a lot of information on.",
+        content: "This is a detailed blog post. It contains a lot of information on how to build a blog using modern technologies...",
         comments: [
             { id: 1, text: "Great article!", author: "Alice", likes: 12 },
-            { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
-            { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
-            { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
             { id: 2, text: "Very helpful, thanks!", author: "Bob", likes: 8 },
         ],
     },
@@ -19,7 +16,7 @@ const posts = [
         id: 2,
         title: "React vs Vue",
         author: "Jane Smith",
-        content: "In this post, we compare React and Vue, two of the most popular front-end JavaScript frameworks. React is widely used, but Vue has gained traction for its simplicity and flexibility. We'll go through the differences in architecture, performance, and learning curve. React provides a more robust ecosystem, while Vue is known for its ease of integration. This post will give you a clear understanding of both frameworks and help you make the right choice for your next project. To read more about this comparison, click 'Read More'.",
+        content: "In this post, we compare React and Vue, two of the most popular front-end JavaScript frameworks...",
         comments: [
             { id: 1, text: "I prefer React.", author: "Charlie", likes: 5 },
             { id: 2, text: "Vue has its own strengths.", author: "Dave", likes: 7 },
@@ -37,11 +34,7 @@ function FeaturedPosts() {
     const handleLikePost = (postId) => {
         setLikedPosts((prev) => {
             const newLikedPosts = new Set(prev);
-            if (newLikedPosts.has(postId)) {
-                newLikedPosts.delete(postId);
-            } else {
-                newLikedPosts.add(postId);
-            }
+            newLikedPosts.has(postId) ? newLikedPosts.delete(postId) : newLikedPosts.add(postId);
             return newLikedPosts;
         });
     };
@@ -49,46 +42,24 @@ function FeaturedPosts() {
     const handleLikeComment = (postId, commentId) => {
         setLikedComments((prev) => {
             const postComments = prev[postId] || {};
-            if (postComments[commentId]) {
-                delete postComments[commentId];
-            } else {
-                postComments[commentId] = true;
-            }
+            postComments[commentId] ? delete postComments[commentId] : postComments[commentId] = true;
             return { ...prev, [postId]: postComments };
         });
     };
 
     const toggleComments = (postId) => {
-        setVisibleComments((prev) => ({
-            ...prev,
-            [postId]: !prev[postId],
-        }));
+        setVisibleComments((prev) => ({ ...prev, [postId]: !prev[postId] }));
     };
 
     const toggleReadMore = (postId) => {
         setExpandedPost((prev) => (prev === postId ? null : postId));
     };
 
-    const handleCommentChange = (e) => {
-        setNewComment(e.target.value);
-    };
-
-    const handleCommentSubmit = (postId) => {
-        if (newComment.trim()) {
-            const updatedPosts = posts.map((post) => {
-                if (post.id === postId) {
-                    post.comments.push({ id: post.comments.length + 1, text: newComment, author: "User", likes: 0 });
-                }
-                return post;
-            });
-            setNewComment("");
-        }
-    };
-
     const truncateContent = (content) => {
-        const wordLimit = 70;
-        const words = content.split(" ");
-        return words.length > wordLimit ? words.slice(0, wordLimit).join(" ") + "..." : content;
+        const wordLimit = 50;
+        return content.split(" ").length > wordLimit
+            ? content.split(" ").slice(0, wordLimit).join(" ") + "..."
+            : content;
     };
 
     return (
@@ -96,23 +67,19 @@ function FeaturedPosts() {
             <h2 className="text-4xl font-bold text-gray-800 mb-8">Trending Articles</h2>
             <div className="space-y-8">
                 {posts.map((post) => (
-                    <div key={post.id} className="bg-white p-8 rounded-lg shadow-lg">
-                        <h3 className="text-3xl font-semibold text-gray-800">{post.title}</h3>
-                        <p className="text-gray-500 text-lg mt-2">By {post.author}</p>
-
-                        {/* Post Content */}
-                        <p
-                            className={`mt-4 text-black transition-all duration-500 ease-in-out ${expandedPost === post.id ? "opacity-100 max-h-none" : "opacity-100 max-h-48 overflow-hidden"
-                                }`}
-                        >
+                    <div key={post.id} className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                            <FaUserCircle className="text-gray-600 text-2xl" />
+                            <p className="text-lg font-semibold text-gray-700">{post.author}</p>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mt-3">{post.title}</h3>
+                        <p className="mt-3 text-gray-700">
                             {expandedPost === post.id ? post.content : truncateContent(post.content)}
                         </p>
-
-                        {/* Read More / Read Less */}
-                        {post.content.split(" ").length > 70 && (
+                        {post.content.split(" ").length > 50 && (
                             <button
                                 onClick={() => toggleReadMore(post.id)}
-                                className="text-blue-500 font-medium mt-4 flex items-center"
+                                className="text-blue-500 font-medium mt-2 flex items-center"
                             >
                                 {expandedPost === post.id ? "Read Less" : "Read More"}
                                 <span className="ml-2">
@@ -120,66 +87,53 @@ function FeaturedPosts() {
                                 </span>
                             </button>
                         )}
-
-                        {/* Comments */}
-                        <div className="mt-6">
-                            <button
-                                onClick={() => toggleComments(post.id)}
-                                className="text-blue-500 font-medium"
-                            >
-                                <FaCommentAlt className="inline-block mr-2" /> {visibleComments[post.id] ? "Hide Comments" : "Show Comments"}
+                        <div className="mt-5">
+                            <button onClick={() => toggleComments(post.id)} className="text-blue-500 font-medium flex items-center">
+                                <FaCommentAlt className="mr-2" />
+                                {visibleComments[post.id] ? "Hide Comments" : "Show Comments"}
                             </button>
                             {visibleComments[post.id] && (
-                                <div className="space-y-4 mt-4">
-                                    <div
-                                        className="max-h-48 overflow-y-auto"
-                                        style={{ maxHeight: "200px" }}
-                                    >
-                                        {post.comments.map((comment) => (
-                                            <div key={comment.id} className="flex items-start space-x-4 p-4 border-t border-gray-200">
-                                                <div className="w-10 h-10 rounded-full bg-gray-200"></div>
-                                                <div className="flex-1">
-                                                    <p className="font-semibold text-gray-700">{comment.author}</p>
-                                                    <p className="text-gray-600">{comment.text}</p>
-                                                </div>
-                                                <button
-                                                    onClick={() => handleLikeComment(post.id, comment.id)}
-                                                    className={`flex items-center ${likedComments[post.id]?.[comment.id] ? "text-red-500" : "text-gray-500"}`}
-                                                >
-                                                    <FaHeart className="mr-2" />
-                                                    {comment.likes + (likedComments[post.id]?.[comment.id] ? 1 : 0)}
-                                                </button>
+                                <div className="mt-3 max-h-56 overflow-y-auto space-y-4">
+                                    {post.comments.map((comment) => (
+                                        <div key={comment.id} className="flex items-start space-x-3 p-3 border rounded-lg">
+                                            <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-gray-800">{comment.author}</p>
+                                                <p className="text-gray-600">{comment.text}</p>
                                             </div>
-                                        ))}
-                                    </div>
-                                    {/* Add New Comment */}
-                                    <div className="mt-4">
-                                        <textarea
-                                            value={newComment}
-                                            onChange={handleCommentChange}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            rows="3"
-                                            placeholder="Add a comment..."
-                                        ></textarea>
-                                        <button
-                                            onClick={() => handleCommentSubmit(post.id)}
-                                            className="mt-2 text-white bg-blue-500 px-4 py-2 rounded-lg"
-                                        >
-                                            Add Comment
-                                        </button>
-                                    </div>
+                                            <button
+                                                onClick={() => handleLikeComment(post.id, comment.id)}
+                                                className={`flex items-center ${likedComments[post.id]?.[comment.id] ? "text-red-500" : "text-gray-500"}`}
+                                            >
+                                                <FaHeart className="mr-1" />
+                                                {comment.likes + (likedComments[post.id]?.[comment.id] ? 1 : 0)}
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
-
-                        {/* Like Button */}
-                        <div className="flex justify-end mt-6">
+                        {visibleComments[post.id] && (
+                            <div className="mt-4">
+                                <textarea
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    className="w-full p-2 border rounded-lg"
+                                    rows="3"
+                                    placeholder="Add a comment..."
+                                ></textarea>
+                                <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg">Add Comment</button>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center mt-5">
                             <button
                                 onClick={() => handleLikePost(post.id)}
-                                className={`flex items-center text-gray-500 ${likedPosts.has(post.id) ? "text-red-500" : ""}`}
+                                className={`flex items-center space-x-2 px-4 py-2 border rounded-lg ${likedPosts.has(post.id) ? "bg-red-500 text-white" : "bg-gray-200 text-gray-700"}`}
                             >
-                                <FaHeart className={`mr-2 ${likedPosts.has(post.id) ? "text-red-500" : ""}`} />
-                                {post.comments.reduce((sum, comment) => sum + comment.likes, 0) + (likedPosts.has(post.id) ? 1 : 0)}
+                                <FaHeart className="text-lg" />
+                                <span>
+                                    {post.comments.reduce((sum, comment) => sum + comment.likes, 0) + (likedPosts.has(post.id) ? 1 : 0)}
+                                </span>
                             </button>
                         </div>
                     </div>
