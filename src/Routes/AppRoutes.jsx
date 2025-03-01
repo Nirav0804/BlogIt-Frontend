@@ -3,6 +3,7 @@ import LandingPage from "../Pages/LandingPage";
 import PostPage from "../Pages/PostPage";
 import SignUp from "../components/Auth/SignUp";
 import Login from "../components/Auth/Login";
+import CreatePost from "../components/Posts/CreatePost";
 function AppRoutes() {
     return (
         <Router>
@@ -11,6 +12,7 @@ function AppRoutes() {
                 <Route path="/posts" element={<PostPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/create_post" element={<CreatePost />} />
             </Routes>
         </Router>
     );
