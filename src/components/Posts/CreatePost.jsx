@@ -1,15 +1,34 @@
 import React, { useState } from "react";
 
 function CreatePost() {
+  const categories = [
+    "Sports",
+    "Technology",
+    "Data Science",
+    "Health & Wellness",
+    "Education",
+    "Finance",
+    "Gaming",
+    "Entertainment",
+    "Travel",
+    "Food",
+    "Lifestyle",
+    "Science",
+    "Business",
+    "History",
+    "Politics",
+    "Others",
+  ];
+
   const [formData, setFormData] = useState({
     title: "",
     content: "",
+    category: "",
     image: null,
   });
   const [preview, setPreview] = useState(null);
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(false);
-  const defaultImage = "src\assets\DefaultImage.png"
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,8 +56,28 @@ function CreatePost() {
     const data = new FormData();
     data.append("title", formData.title);
     data.append("content", formData.content);
+    data.append("category", formData.category);
     if (formData.image) data.append("image", formData.image);
-    else data.append("image", defaultImage)
+
+    try {
+      const response = await fetch("http://localhost:5000/api/posts", {
+        method: "POST",
+        body: data,
+      });
+
+      if (!response.ok) throw new Error("Failed to create post");
+      const result = await response.json();
+      console.log("Post created:", result);
+
+      // Reset form
+      setFormData({ title: "", content: "", category: "", image: null });
+      setPreview(null);
+      setFileName("");
+    } catch (error) {
+      console.error("Error creating post:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,6 +85,7 @@ function CreatePost() {
       <div className="w-full max-w-2xl p-6 bg-[#5A3F5E] shadow-lg rounded-lg text-white">
         <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">Create a New Blog Post</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300">Title</label>
             <input
@@ -58,6 +98,7 @@ function CreatePost() {
             />
           </div>
 
+          {/* Content */}
           <div>
             <label className="block text-sm font-medium text-gray-300">Content</label>
             <textarea
@@ -70,6 +111,31 @@ function CreatePost() {
             ></textarea>
           </div>
 
+          {/* Category Dropdown (Now Fully Visible) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300">Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full mt-1 p-3 border border-gray-500 bg-[#77557C] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B089B0]"
+              required
+            >
+              <option value="" disabled className="text-gray-400">Select a category</option>
+              {categories.map((category, index) => (
+                <option
+                  key={index}
+                  value={category}
+                  className="text-black bg-white hover:bg-gray-300"
+                >
+                  {category}
+                </option>
+              ))}
+            </select>
+
+          </div>
+
+          {/* Image Upload with Preview & Remove Button */}
           <div className="relative flex flex-col items-center justify-center border border-gray-500 rounded-lg p-4 bg-[#77557C] w-full">
             {/* Image Preview Box */}
             <div className="w-full h-48 flex items-center justify-center border border-gray-400 rounded-lg overflow-hidden bg-[#5A3F5E]">
@@ -80,10 +146,12 @@ function CreatePost() {
               )}
             </div>
 
+            {/* File Name Display */}
             {fileName && (
               <p className="mt-2 text-sm text-gray-300 text-center">{fileName}</p>
             )}
 
+            {/* Image Upload / Remove */}
             {preview ? (
               <button
                 type="button"
