@@ -1,23 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
-function CreatePost() {
+function CreatePost({ isOpen, onClose }) {
+  if (!isOpen) return null;
+
+  const modalRef = useRef(null);
+
+  const handleOutsideClick = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      onClose();
+    }
+  };
+
   const categories = [
-    "Sports",
-    "Technology",
-    "Data Science",
-    "Health & Wellness",
-    "Education",
-    "Finance",
-    "Gaming",
-    "Entertainment",
-    "Travel",
-    "Food",
-    "Lifestyle",
-    "Science",
-    "Business",
-    "History",
-    "Politics",
-    "Others",
+    "Sports", "Technology", "Data Science", "Health & Wellness",
+    "Education", "Finance", "Gaming", "Entertainment", "Travel",
+    "Food", "Lifestyle", "Science", "Business", "History",
+    "Politics", "Others",
   ];
 
   const [formData, setFormData] = useState({
@@ -26,6 +24,7 @@ function CreatePost() {
     category: "",
     image: null,
   });
+
   const [preview, setPreview] = useState(null);
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,6 +52,7 @@ function CreatePost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     const data = new FormData();
     data.append("title", formData.title);
     data.append("content", formData.content);
@@ -66,13 +66,13 @@ function CreatePost() {
       });
 
       if (!response.ok) throw new Error("Failed to create post");
-      const result = await response.json();
-      console.log("Post created:", result);
 
-      // Reset form
+      console.log("Post created:", await response.json());
+
       setFormData({ title: "", content: "", category: "", image: null });
       setPreview(null);
       setFileName("");
+      onClose();
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
@@ -81,102 +81,92 @@ function CreatePost() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#332233] p-4">
-      <div className="w-full max-w-2xl p-6 bg-[#5A3F5E] shadow-lg rounded-lg text-white">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">Create a New Blog Post</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
+    <div
+      className="fixed inset-0 bg-black/30 bg-opacity-50 backdrop-blur-md flex justify-center items-center z-50"
+      onClick={handleOutsideClick}
+    >
+      <div
+        ref={modalRef}
+        className="bg-[#77557C] p-8 rounded-2xl shadow-xl w-full max-w-xl relative text-white border border-[#DFC2F2]"
+        onClick={(e) => e.stopPropagation()} // Prevent click inside from closing
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl">
+          &times;
+        </button>
+
+        <h2 className="text-3xl font-bold text-center mb-6">Create a New Post</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300">Title</label>
+            <label className="block text-sm font-medium mb-1">Title</label>
             <input
               type="text"
               name="title"
+              placeholder="Enter post title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full mt-1 p-3 border border-gray-500 bg-[#77557C] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B089B0]"
+              className="w-full px-4 py-3 bg-[#E8D5E5] text-[#4A2C4A] rounded-lg focus:outline-none"
               required
             />
           </div>
 
-          {/* Content */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Content</label>
+            <label className="block text-sm font-medium mb-1">Content</label>
             <textarea
               name="content"
+              placeholder="Write your content..."
               value={formData.content}
               onChange={handleChange}
-              className="w-full mt-1 p-3 border border-gray-500 bg-[#77557C] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B089B0]"
-              rows="5"
+              className="w-full px-4 py-3 bg-[#E8D5E5] text-[#4A2C4A] rounded-lg focus:outline-none"
+              rows="4"
               required
             ></textarea>
           </div>
 
-          {/* Category Dropdown (Now Fully Visible) */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Category</label>
+            <label className="block text-sm font-medium mb-1">Category</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full mt-1 p-3 border border-gray-500 bg-[#77557C] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B089B0]"
+              className="w-full px-4 py-3 bg-[#E8D5E5] text-[#4A2C4A] rounded-lg focus:outline-none"
               required
             >
-              <option value="" disabled className="text-gray-400">Select a category</option>
+              <option value="" disabled>Select a category</option>
               {categories.map((category, index) => (
-                <option
-                  key={index}
-                  value={category}
-                  className="text-black bg-white hover:bg-gray-300"
-                >
+                <option key={index} value={category} className="text-black">
                   {category}
                 </option>
               ))}
             </select>
-
           </div>
 
-          {/* Image Upload with Preview & Remove Button */}
-          <div className="relative flex flex-col items-center justify-center border border-gray-500 rounded-lg p-4 bg-[#77557C] w-full">
-            {/* Image Preview Box */}
-            <div className="w-full h-48 flex items-center justify-center border border-gray-400 rounded-lg overflow-hidden bg-[#5A3F5E]">
-              {preview ? (
-                <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain" />
-              ) : (
-                <p className="text-gray-300 text-sm">No image selected</p>
-              )}
-            </div>
-
-            {/* File Name Display */}
-            {fileName && (
-              <p className="mt-2 text-sm text-gray-300 text-center">{fileName}</p>
-            )}
-
-            {/* Image Upload / Remove */}
+          <div className="border border-[#DFC2F2] rounded-lg p-4 bg-[#E8D5E5] text-center">
             {preview ? (
-              <button
-                type="button"
-                onClick={handleRemoveImage}
-                className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition"
-              >
-                Remove Image
-              </button>
+              <div className="relative">
+                <img src={preview} alt="Preview" className="max-w-full h-40 mx-auto rounded-lg" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-1 right-1 bg-red-600 text-white px-2 py-1 rounded-md"
+                >
+                  Remove
+                </button>
+              </div>
             ) : (
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full mt-2 cursor-pointer p-2 text-center bg-[#B089B0] text-white rounded-lg"
-              />
+              <>
+                <input type="file" accept="image/*" onChange={handleImageChange} className="w-full p-2 cursor-pointer" />
+                <p className="text-[#4A2C4A] text-sm mt-2">{fileName || "No image selected"}</p>
+              </>
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full p-3 bg-[#B089B0] hover:bg-[#A073A0] rounded-lg font-bold text-white transition duration-300"
+            className="w-full py-3 bg-[#DFC2F2] text-[#4A2C4A] font-semibold rounded-xl hover:bg-[#EAD6FF] transition duration-300"
             disabled={loading}
           >
-            {loading ? "Submitting..." : "Submit"}
+            {loading ? "Submitting..." : "Submit Post"}
           </button>
         </form>
       </div>

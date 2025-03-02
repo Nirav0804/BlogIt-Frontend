@@ -1,11 +1,11 @@
 import React from 'react'
-import FeaturedPosts from '../components/Posts/FeaturedPosts'
 import GradientBackground from '../components/GradiantBackground/GradiantBackground'
+import MainPosts from '../components/Posts/MainPosts'
 
 function PostPage() {
     return (
         <GradientBackground>
-            <FeaturedPosts />
+            <MainPosts />
         </GradientBackground>
     )
 }
