@@ -4,6 +4,7 @@ import Categories from "./Categories";
 import TrendingPosts from "../Posts/TrendingPosts";
 import MainNavbar from "../Navigation/MainNavbar";
 import CreatePost from "../Posts/CreatePost";
+import Posts from "./Posts";
 
 function MainPosts() {
     const [isPostOpen, setIsPostOpen] = useState(false);
@@ -27,7 +28,8 @@ function MainPosts() {
 
             <div className={`flex flex-row gap-6 px-6 py-4 flex-1 ${isPostOpen ? "overflow-hidden" : ""}`}>
                 <div className="w-3/4">
-                    <FeaturedPosts />
+                    {/* <FeaturedPosts /> */}
+                    <Posts />
                     <button
                         onClick={() => setIsPostOpen(true)}
                         className="mt-4 px-4 py-2 bg-[#DFC2F2] text-[#4A2C4A] font-semibold rounded-xl hover:bg-[#EAD6FF]"
