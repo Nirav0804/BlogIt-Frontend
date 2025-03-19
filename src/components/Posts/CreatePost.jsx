@@ -1,33 +1,63 @@
-import React, { useState, useRef } from "react";
-
+import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 function CreatePost({ isOpen, onClose }) {
-  if (!isOpen) return null;
 
-  const modalRef = useRef(null);
-
-  const handleOutsideClick = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      onClose();
-    }
-  };
-
-  const categories = [
-    "Sports", "Technology", "Data Science", "Health & Wellness",
-    "Education", "Finance", "Gaming", "Entertainment", "Travel",
-    "Food", "Lifestyle", "Science", "Business", "History",
-    "Politics", "Others",
-  ];
-
+  const navigate = useNavigate();
+  const [currentUserId, setCurrentUserId] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    category: "",
+    // category: "",
     image: null,
   });
 
   const [preview, setPreview] = useState(null);
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      navigate("/login");
+    }
+    setCurrentUserId(userId);
+  }, []);
+
+  if (!isOpen) return null;
+
+  // const modalRef = useRef(null);
+
+  // const handleOutsideClick = (e) => {
+  //   if (modalRef.current && !modalRef.current.contains(e.target)) {
+  //     onClose();
+  //   }
+  // };
+
+  const categories = {
+    1: "Sports",
+    2: "Technology",
+    3: "Data Science",
+    4: "Health & Wellness",
+    5: "Education",
+    6: "Finance",
+    7: "Gaming",
+    8: "Entertainment",
+    9: "Travel",
+    10: "Food",
+    11: "Lifestyle",
+    12: "Science",
+    13: "Business",
+    14: "History",
+    15: "Politics",
+    16: "Others",
+  };
+
+
+  const handleOptionChange = (e) => {
+    setSelectedCategoryId(e.target.value);
+  };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,41 +84,47 @@ function CreatePost({ isOpen, onClose }) {
     setLoading(true);
 
     const data = new FormData();
-    data.append("title", formData.title);
-    data.append("content", formData.content);
-    data.append("category", formData.category);
-    if (formData.image) data.append("image", formData.image);
+    data.append("postDTO", JSON.stringify({
+      title: formData.title,
+      content: formData.content
+    }));
+
+    if (formData.image) data.append("img", formData.image);
 
     try {
-      const response = await fetch("http://localhost:5000/api/posts", {
-        method: "POST",
-        body: data,
-      });
+      const response = await axios.post(
+        `http://localhost:8080/api/v1/user/${currentUserId}/category/${selectedCategoryId}/posts`,
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      if (!response.ok) throw new Error("Failed to create post");
+      console.log("Post created:", response.data);
 
-      console.log("Post created:", await response.json());
-
-      setFormData({ title: "", content: "", category: "", image: null });
+      setFormData({ title: "", content: "", image: null });
       setPreview(null);
       setFileName("");
       onClose();
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating post:", error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
   };
 
+
   return (
     <div
       className="fixed inset-0 bg-black/30 bg-opacity-50 backdrop-blur-md flex justify-center items-center z-50"
-      onClick={handleOutsideClick}
+    // onClick={handleOutsideClick}
     >
       <div
-        ref={modalRef}
+        // ref={modalRef}
         className="bg-[#77557C] p-8 rounded-2xl shadow-xl w-full max-w-xl relative text-white border border-[#DFC2F2]"
-        onClick={(e) => e.stopPropagation()} // Prevent click inside from closing
+        onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-white hover:text-gray-300 text-2xl">
           &times;
@@ -127,18 +163,19 @@ function CreatePost({ isOpen, onClose }) {
             <label className="block text-sm font-medium mb-1">Category</label>
             <select
               name="category"
-              value={formData.category}
-              onChange={handleChange}
+              value={selectedCategoryId}
+              onChange={handleOptionChange}
               className="w-full px-4 py-3 bg-[#E8D5E5] text-[#4A2C4A] rounded-lg focus:outline-none"
               required
             >
               <option value="" disabled>Select a category</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category} className="text-black">
+              {Object.entries(categories).map(([id, category]) => (
+                <option key={id} value={id} className="text-black">
                   {category}
                 </option>
               ))}
             </select>
+
           </div>
 
           <div className="border border-[#DFC2F2] rounded-lg p-4 bg-[#E8D5E5] text-center">
