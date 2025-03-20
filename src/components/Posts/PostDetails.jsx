@@ -120,13 +120,17 @@ function PostDetails({ postId }) {
   const [commentText, setCommentText] = useState("");
   const [estimatedReadTime, setEstimatedReadTime] = useState("5 min");
   const [relatedPosts, setRelatedPosts] = useState([]);
+  const [likeId, setLikeId] = useState(null);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+    setUserId(userId);
     if (!userId) {
       navigate("/");
     }
   }, []);
+
   useEffect(() => {
     const fetchPostDetails = async () => {
       try {
@@ -134,7 +138,7 @@ function PostDetails({ postId }) {
           `http://localhost:8080/api/v1/posts/${postId}`
         );
         setPost(response.data);
-
+        setIsLiked(response.data.isLiked);
         // Calculate estimated read time based on content length
         const wordsPerMinute = 200;
         const wordCount = response.data.content.split(/\s+/).length;
@@ -174,22 +178,53 @@ function PostDetails({ postId }) {
   }, [post]);
 
   const handleLike = async () => {
+    // Save the current state before attempting any changes
+    const currentLikeStatus = isLiked;
+    
     try {
-      // Optimistic update
-      setIsLiked(!isLiked);
-
-      // Here you would make an API call to update the like status
-      // const response = await axios.post(`http://localhost:8080/api/v1/posts/${postId}/like`);
-
-      // Update the post with the new like count from the API response
-      // setPost(prevPost => ({
-      //   ...prevPost,
-      //   likeCount: response.data.likeCount
-      // }));
+      if (isLiked===false) {
+        // Optimistically update UI
+        setIsLiked(true);
+        
+        // Make API call
+        const response = await axios.post(
+          `http://localhost:8080/api/v1/user/${userId}/post/${postId}/likes`
+        );
+        
+        // Save the like ID returned from the API
+        if (response.data && response.data.id) {
+          setLikeId(response.data.id);
+          // console.log("Like ID:", response.data.id);
+        } else {
+          console.error("No like ID returned from API");
+          throw new Error("Invalid API response");
+        }
+      } else {
+        // Ensure we have a likeId before attempting to delete
+        if (!likeId) {
+          console.error("No like ID available for deletion");
+          throw new Error("Missing like ID");
+        }
+        
+        // Optimistically update UI
+        setIsLiked(false);
+        console.log("Like ID:", likeId);
+        
+        // Make API call
+        await axios.delete(
+          `http://localhost:8080/api/v1/likes/${likeId}`
+        );
+      }
     } catch (err) {
-      // Revert on error
-      setIsLiked(isLiked);
+      // Revert UI changes on error
+      setIsLiked(currentLikeStatus);
+      setPost((prevPost) => ({
+        ...prevPost,
+        likeCount: currentLikeStatus ? prevPost.likeCount + 1 : prevPost.likeCount - 1,
+      }));
+      
       console.error("Error updating like status:", err);
+      // You might want to show an error message to the user here
     }
   };
 
@@ -214,15 +249,18 @@ function PostDetails({ postId }) {
 
     try {
       // Here you would make an API call to submit the comment
-      const response = await axios.post(`http://localhost:8080/api/v1/posts/${postId}/comments`, {
-        content: commentText
-      });
+      const response = await axios.post(
+        `http://localhost:8080/api/v1/posts/${postId}/comments`,
+        {
+          content: commentText,
+        }
+      );
 
       // Update the post with the new comment
-      setPost(prevPost => ({
+      setPost((prevPost) => ({
         ...prevPost,
         comments: [response.data, ...prevPost.comments],
-        commentCount: prevPost.commentCount + 1
+        commentCount: prevPost.commentCount + 1,
       }));
 
       setCommentText("");
@@ -236,7 +274,6 @@ function PostDetails({ postId }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 w-full">
-
       <MainNavbar />
       {/* Top Navigation Bar */}
       <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200 w-full">
@@ -423,10 +460,11 @@ function PostDetails({ postId }) {
               <button
                 type="submit"
                 disabled={!commentText.trim()}
-                className={`px-4 py-2 rounded-full ${commentText.trim()
-                  ? "bg-green-600 text-white hover:bg-green-700"
-                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  } transition duration-300`}
+                className={`px-4 py-2 rounded-full ${
+                  commentText.trim()
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                } transition duration-300`}
               >
                 Respond
               </button>
@@ -467,7 +505,6 @@ function PostDetails({ postId }) {
           </div>
         </section>
       )}
-
     </div>
   );
 }
