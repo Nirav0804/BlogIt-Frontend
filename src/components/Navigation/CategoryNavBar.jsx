@@ -13,14 +13,6 @@ function CategoryNavbar() {
                     <span className="text-3xl font-bold text-white">BlogIt</span>
                 </Link>
 
-                <div className="flex-1 mx-4">
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        className="h-8 w-50 p-2 rounded-xl bg-gray-400 text-black focus:outline-none"
-                    />
-                </div>
-
                 <div className="flex items-center gap-x-4">
 
                     <Link to="/posts">
