@@ -214,16 +214,16 @@ function PostDetails({ postId }) {
 
     try {
       // Here you would make an API call to submit the comment
-      // const response = await axios.post(`http://localhost:8080/api/v1/posts/${postId}/comments`, {
-      //   content: commentText
-      // });
+      const response = await axios.post(`http://localhost:8080/api/v1/posts/${postId}/comments`, {
+        content: commentText
+      });
 
       // Update the post with the new comment
-      // setPost(prevPost => ({
-      //   ...prevPost,
-      //   comments: [response.data, ...prevPost.comments],
-      //   commentCount: prevPost.commentCount + 1
-      // }));
+      setPost(prevPost => ({
+        ...prevPost,
+        comments: [response.data, ...prevPost.comments],
+        commentCount: prevPost.commentCount + 1
+      }));
 
       setCommentText("");
     } catch (err) {

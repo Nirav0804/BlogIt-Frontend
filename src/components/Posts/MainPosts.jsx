@@ -39,12 +39,12 @@ function MainPosts() {
                 <div className="w-3/4">
                     {/* <FeaturedPosts /> */}
                     <Posts />
-                    <button
+                    {/* <button
                         onClick={() => setIsPostOpen(true)}
                         className="mt-4 px-4 py-2 bg-[#DFC2F2] text-[#4A2C4A] font-semibold rounded-xl hover:bg-[#EAD6FF]"
                     >
                         Create Post
-                    </button>
+                    </button> */}
                 </div>
 
                 <aside className="w-1/4 bg-gray-100 p-6 rounded-xl sticky top-6 h-[calc(100vh-24px)] overflow-y-auto">
