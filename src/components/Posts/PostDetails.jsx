@@ -79,7 +79,7 @@ const Comment = ({ comment }) => {
   );
 };
 
-const  LoadingSkeleton = () => (
+const LoadingSkeleton = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-50">
     <div className="animate-pulse flex flex-col w-full max-w-3xl px-4">
       <div className="bg-gray-200 h-8 w-24 mb-12 rounded"></div>
@@ -117,6 +117,7 @@ function PostDetails({ postId }) {
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [estimatedReadTime, setEstimatedReadTime] = useState("5 min");
   const [relatedPosts, setRelatedPosts] = useState([]);
@@ -129,7 +130,7 @@ function PostDetails({ postId }) {
     if (!userId) {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -137,11 +138,23 @@ function PostDetails({ postId }) {
         const response = await axios.get(
           `http://localhost:8080/api/v1/posts/${postId}`
         );
-        setPost(response.data);
-        setIsLiked(response.data.isLiked);
+        const postData = response.data;
+        setPost(postData);
+        
+        // Initialize like count
+        setLikeCount(postData.likeCount || 0);
+        
+        // Check if the current user has liked the post
+        const likes = postData.likes || [];
+        const currentUserId = Number(localStorage.getItem("userId"));
+        const likedObject = likes.find(like => like.userId === currentUserId);
+        
+        setIsLiked(!!likedObject);
+        setLikeId(likedObject ? likedObject.id : null);
+
         // Calculate estimated read time based on content length
         const wordsPerMinute = 200;
-        const wordCount = response.data.content.split(/\s+/).length;
+        const wordCount = postData.content.split(/\s+/).length;
         const readTime = Math.ceil(wordCount / wordsPerMinute);
         setEstimatedReadTime(`${readTime} min read`);
       } catch (err) {
@@ -178,25 +191,26 @@ function PostDetails({ postId }) {
   }, [post]);
 
   const handleLike = async () => {
-    // Save the current state before attempting any changes
-    const currentLikeStatus = isLiked;
-    
+    if (!userId) {
+      navigate("/");
+      return;
+    }
+
     try {
-      if (isLiked===false) {
+      if (!isLiked) {
         // Optimistically update UI
         setIsLiked(true);
-        
-        // Make API call
+        setLikeCount(prevCount => prevCount + 1);
+
+        // Make API call to like the post
         const response = await axios.post(
           `http://localhost:8080/api/v1/user/${userId}/post/${postId}/likes`
         );
-        
+
         // Save the like ID returned from the API
         if (response.data && response.data.id) {
           setLikeId(response.data.id);
-          // console.log("Like ID:", response.data.id);
         } else {
-          console.error("No like ID returned from API");
           throw new Error("Invalid API response");
         }
       } else {
@@ -205,23 +219,19 @@ function PostDetails({ postId }) {
           console.error("No like ID available for deletion");
           throw new Error("Missing like ID");
         }
-        
+
         // Optimistically update UI
         setIsLiked(false);
-        console.log("Like ID:", likeId);
-        
-        // Make API call
-        await axios.delete(
-          `http://localhost:8080/api/v1/likes/${likeId}`
-        );
+        setLikeCount(prevCount => Math.max(0, prevCount - 1));
+
+        // Make API call to unlike the post
+        await axios.delete(`http://localhost:8080/api/v1/likes/${likeId}`);
+        setLikeId(null);
       }
     } catch (err) {
       // Revert UI changes on error
-      setIsLiked(currentLikeStatus);
-      setPost((prevPost) => ({
-        ...prevPost,
-        likeCount: currentLikeStatus ? prevPost.likeCount + 1 : prevPost.likeCount - 1,
-      }));
+      setIsLiked(!isLiked);
+      setLikeCount(prevCount => isLiked ? prevCount + 1 : prevCount - 1);
       
       console.error("Error updating like status:", err);
       // You might want to show an error message to the user here
@@ -244,28 +254,65 @@ function PostDetails({ postId }) {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-
-    if (!commentText.trim()) return;
-
+  
+    if (!commentText.trim() || !userId) return;
+  
+    // Save current comment text before clearing input
+    const commentContent = commentText;
+    
+    // Optimistically update UI
+    const tempCommentId = `temp-${Date.now()}`;
+    const tempComment = {
+      id: tempCommentId,
+      content: commentContent,
+      username: "You", // Could be replaced with actual username from localStorage if available
+      createdAt: new Date().toISOString(),
+      likes: 0,
+      userId: Number(userId),
+      // Add any other required fields with placeholder values
+    };
+    
+    // Update UI optimistically
+    setPost((prevPost) => ({
+      ...prevPost,
+      comments: [tempComment, ...(prevPost.comments || [])],
+      commentCount: (prevPost.commentCount || 0) + 1,
+    }));
+    
+    // Clear input field immediately for better UX
+    setCommentText("");
+  
     try {
-      // Here you would make an API call to submit the comment
+      // Make API call to submit the comment with correct endpoint
       const response = await axios.post(
-        `http://localhost:8080/api/v1/posts/${postId}/comments`,
+        `http://localhost:8080/api/v1/user/${userId}/post/${postId}/comments`,
         {
-          content: commentText,
+          content: commentContent
         }
       );
-
-      // Update the post with the new comment
+  
+      // Update the temporary comment with the real one from the server
       setPost((prevPost) => ({
         ...prevPost,
-        comments: [response.data, ...prevPost.comments],
-        commentCount: prevPost.commentCount + 1,
+        comments: prevPost.comments.map(comment => 
+          comment.id === tempCommentId ? response.data : comment
+        )
       }));
-
-      setCommentText("");
     } catch (err) {
       console.error("Error posting comment:", err);
+      
+      // Revert the optimistic update on error
+      setPost((prevPost) => ({
+        ...prevPost,
+        comments: prevPost.comments.filter(comment => comment.id !== tempCommentId),
+        commentCount: prevPost.commentCount - 1,
+      }));
+      
+      // Optional: Show an error message to the user
+      // setCommentError("Failed to post comment. Please try again.");
+      
+      // Return the text to the input field so the user doesn't lose their comment
+      setCommentText(commentContent);
     }
   };
 
@@ -397,7 +444,7 @@ function PostDetails({ postId }) {
                 ) : (
                   <FaRegHeart className="h-5 w-5" />
                 )}
-                <span>{post.likeCount + (isLiked ? 1 : 0)}</span>
+                <span>{likeCount}</span>
               </button>
               <button
                 className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition duration-300"
