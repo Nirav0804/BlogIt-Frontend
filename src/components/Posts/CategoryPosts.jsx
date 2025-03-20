@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Categories from "./Categories";
 import CategoryNavbar from "../Navigation/CategoryNavBar";
-import PostCard from "./PostCrad";
+import PostCard from "./PostCard";
 import Loader from "./Loader";
 
 function CategoryPosts() {

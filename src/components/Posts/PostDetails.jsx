@@ -13,7 +13,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import { format } from "date-fns";
-import PostCard from "./PostCrad";
+import PostCard from "./PostCard";
 import MainNavbar from "../Navigation/MainNavbar";
 
 // Separate components for better organization
