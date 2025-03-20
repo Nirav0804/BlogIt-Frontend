@@ -49,9 +49,9 @@ const Profile = () => {
                 if (activeTab === "Your Blog") {
                     response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/posts`);
                 } else if (activeTab === "Liked Blogs") {
-                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/liked-posts`);
+                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/liked/posts`);
                 } else if (activeTab === "Commented Blogs") {
-                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/commented-posts`);
+                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/commented/posts`);
                 }
 
                 if (response && response.data) {
