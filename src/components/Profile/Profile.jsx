@@ -1,51 +1,95 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
-
+import { Link, useNavigate } from "react-router-dom";
+import PostCard from "../Posts/PostCrad";
 const Profile = () => {
-    const username = "Nirav Patel";
+    // const username = "Nirav Patel";
+    const navigate = useNavigate();
+    const [currentUserId, setCurrentUserId] = useState("");
+    const [currentUserName, setCurrentUserName] = useState("");
     const [activeTab, setActiveTab] = useState("Your Blog");
     const [blogData, setBlogData] = useState({
         "Your Blog": [],
         "Liked Blogs": [],
         "Commented Blogs": []
     });
-
     const tabs = ["Your Blog", "Liked Blogs", "Commented Blogs"];
+    useEffect(() => {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            navigate("/")
+        }
+        setCurrentUserId(userId);
+
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/v1/users/${userId}`);
+                console.log(response.data);
+                setCurrentUserName(response.data.username);
+            }
+            catch {
+                console.log("Unable to fetch User.");
+
+            }
+        }
+        fetchUser();
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("userId");
+        navigate("/")
+    }
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 let response;
+
                 if (activeTab === "Your Blog") {
-                    response = await fetch("/api/user-blogs");
+                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/posts`);
                 } else if (activeTab === "Liked Blogs") {
-                    response = await fetch("/api/liked-blogs");
-                } else if (activeTab === "Commented Posts") {
-                    response = await fetch("/api/commented-posts");
+                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/liked-posts`);
+                } else if (activeTab === "Commented Blogs") {
+                    response = await axios.get(`http://localhost:8080/api/v1/user/${currentUserId}/commented-posts`);
                 }
 
-                if (response) {
-                    const data = await response.json();
-                    setBlogData((prevData) => ({ ...prevData, [activeTab]: data }));
+                if (response && response.data) {
+                    setBlogData((prevData) => ({ ...prevData, [activeTab]: response.data }));
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
 
-        fetchData();
-    }, [activeTab]);
+        if (currentUserId) {
+            fetchData();
+        }
+    }, [activeTab, currentUserId]);
+
 
     return (
         <div className="flex flex-col min-h-screen p-6">
             {/* User Info Section */}
             <div className="flex justify-between items-center bg-[#4E3A59] text-white p-4 rounded-lg w-full mb-6 shadow-lg">
                 <div className="flex items-center">
-                    <FaUserCircle size={50} className="mr-4" />
-                    <h2 className="text-xl font-semibold">{username}</h2>
+                    <FaUserCircle size={30} className="mr-4" />
+                    <h2 className="text-3xl font-semibold">{currentUserName}</h2>
                 </div>
-                <button className="bg-red-500 px-4 py-2 rounded-lg text-white hover:bg-red-600 transition duration-200">Logout</button>
+
+                {/* Buttons Container */}
+                <div className="flex items-center gap-4">
+                    <Link to="/posts">
+                        <button className="bg-blue-500 px-4 py-2 rounded-lg text-white hover:bg-blue-600 transition duration-200">
+                            All Posts
+                        </button>
+                    </Link>
+                    <button className="bg-red-500 px-4 py-2 rounded-lg text-white hover:bg-red-600 transition duration-200" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </div>
             </div>
+
 
             <div className="flex flex-1">
                 <div className="w-1/4 bg-[#4E3A59] text-white p-4 rounded-lg shadow-lg">
@@ -68,9 +112,8 @@ const Profile = () => {
                     <div>
                         {blogData[activeTab].length > 0 ? (
                             blogData[activeTab].map((blog, index) => (
-                                <div key={index} className="mb-4 p-4 border rounded-lg shadow bg-gray-50">
-                                    <h3 className="text-xl font-semibold text-[#4E3A59]">{blog.title}</h3>
-                                    <p className="text-gray-700">{blog.content}</p>
+                                <div key={index}>
+                                    <PostCard post={blog} />
                                 </div>
                             ))
                         ) : (

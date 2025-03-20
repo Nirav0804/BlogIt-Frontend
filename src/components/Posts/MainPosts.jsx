@@ -5,9 +5,18 @@ import TrendingPosts from "../Posts/TrendingPosts";
 import MainNavbar from "../Navigation/MainNavbar";
 import CreatePost from "../Posts/CreatePost";
 import Posts from "./Posts";
-
+import { useNavigate } from "react-router-dom";
 function MainPosts() {
     const [isPostOpen, setIsPostOpen] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState("");
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            navigate("/");
+        }
+    }, []);
 
     useEffect(() => {
         if (isPostOpen) {

@@ -122,6 +122,12 @@ function PostDetails({ postId }) {
   const [relatedPosts, setRelatedPosts] = useState([]);
 
   useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      navigate("/");
+    }
+  }, []);
+  useEffect(() => {
     const fetchPostDetails = async () => {
       try {
         const response = await axios.get(
@@ -417,11 +423,10 @@ function PostDetails({ postId }) {
               <button
                 type="submit"
                 disabled={!commentText.trim()}
-                className={`px-4 py-2 rounded-full ${
-                  commentText.trim()
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                } transition duration-300`}
+                className={`px-4 py-2 rounded-full ${commentText.trim()
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  } transition duration-300`}
               >
                 Respond
               </button>
@@ -446,22 +451,22 @@ function PostDetails({ postId }) {
         </div>
       </div>
 
-    {/* Related Articles */}
-{relatedPosts.length > 0 && (
-  <section className="py-12 px-4 w-full">
-    <div className="max-w-7xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Related Articles
-      </h2>
+      {/* Related Articles */}
+      {relatedPosts.length > 0 && (
+        <section className="py-12 px-4 w-full">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Related Articles
+            </h2>
 
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {relatedPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </div>
-    </div>
-  </section>
-)}
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
     </div>
   );

@@ -14,10 +14,11 @@ function AppRoutes() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/posts" element={<PostPage />} />
                 <Route path="/post/:id" element={<PostDetailsPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/create_post" element={<CreatePost />} />
+                {/* <Route path="/login" element={<Login />} /> */}
+                {/* <Route path="/signup" element={<SignUp />} /> */}
+                {/* <Route path="/create_post" element={<CreatePost />} /> */}
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/*" element={<>Page Not Found</>} />
             </Routes>
         </Router>
     );

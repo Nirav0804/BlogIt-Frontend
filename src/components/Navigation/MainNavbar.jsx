@@ -29,9 +29,11 @@ function MainNavbar() {
             <FaPlus className="text-white text-xl" />
           </button>
 
-          <div className="p-3 bg-gray-800 rounded-full cursor-pointer">
-            <FaUser className="text-white text-xl" />
-          </div>
+          <Link to="/profile">
+            <div className="p-3 bg-gray-800 rounded-full cursor-pointer">
+              <FaUser className="text-white text-xl" />
+            </div>
+          </Link>
         </div>
       </nav>
 
