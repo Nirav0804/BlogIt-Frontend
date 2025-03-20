@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaPlus, FaUser } from "react-icons/fa";
 import CreatePost from "../Posts/CreatePost";
 
-function MainNavbar() {
+function MainNavbar({ setSearchQuery }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -18,6 +18,7 @@ function MainNavbar() {
             type="text"
             placeholder="Search..."
             className="h-8 w-50 p-2 rounded-xl bg-gray-400 text-black focus:outline-none"
+            onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
           />
         </div>
 

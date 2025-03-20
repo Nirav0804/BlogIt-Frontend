@@ -6,16 +6,41 @@ import MainNavbar from "../Navigation/MainNavbar";
 import CreatePost from "../Posts/CreatePost";
 import Posts from "./Posts";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 function MainPosts() {
     const [isPostOpen, setIsPostOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState("");
+    const [posts, setPosts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         if (!userId) {
             navigate("/");
         }
+    }, []);
+
+    const fetchPosts = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get("http://localhost:8080/api/v1/posts");
+            setPosts(response.data.posts);
+            console.log("Fetched posts:", response.data.posts);
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
     }, []);
 
     useEffect(() => {
@@ -31,20 +56,13 @@ function MainPosts() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <MainNavbar />
+            <MainNavbar allposts={fetchPosts} setSearchQuery={setSearchQuery} />
 
             {isPostOpen && <CreatePost isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />}
 
             <div className={`flex flex-row gap-6 px-6 py-4 flex-1 ${isPostOpen ? "overflow-hidden" : ""}`}>
                 <div className="w-3/4">
-                    {/* <FeaturedPosts /> */}
-                    <Posts />
-                    {/* <button
-                        onClick={() => setIsPostOpen(true)}
-                        className="mt-4 px-4 py-2 bg-[#DFC2F2] text-[#4A2C4A] font-semibold rounded-xl hover:bg-[#EAD6FF]"
-                    >
-                        Create Post
-                    </button> */}
+                    <Posts posts={posts} searchQuery={searchQuery} loading={loading} error={error} />
                 </div>
 
                 <aside className="w-1/4 bg-gray-100 p-6 rounded-xl sticky top-6 h-[calc(100vh-24px)] overflow-y-auto">

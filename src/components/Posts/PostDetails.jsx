@@ -79,7 +79,7 @@ const Comment = ({ comment }) => {
   );
 };
 
-const LoadingSkeleton = () => (
+const  LoadingSkeleton = () => (
   <div className="flex items-center justify-center min-h-screen bg-gray-50">
     <div className="animate-pulse flex flex-col w-full max-w-3xl px-4">
       <div className="bg-gray-200 h-8 w-24 mb-12 rounded"></div>
