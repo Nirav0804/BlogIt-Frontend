@@ -15,6 +15,7 @@ function MainPosts() {
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [trendingPosts, setTrendingPosts] = useState([]);
 
     const navigate = useNavigate();
 
@@ -29,8 +30,13 @@ function MainPosts() {
         try {
             setLoading(true);
             const response = await axios.get("http://localhost:8080/api/v1/posts");
-            setPosts(response.data.posts);
+            const fetchedPosts = response.data.posts;
+            setPosts(fetchedPosts);
             console.log("Fetched posts:", response.data.posts);
+            const sortedTrendingPosts = [...fetchedPosts]
+                .sort((a, b) => (b.likeCount + b.commentCount) - (a.likeCount + a.commentCount))
+                .slice(0, 5);
+            setTrendingPosts(sortedTrendingPosts);
         } catch (error) {
             console.error("Error fetching posts:", error);
             setError(error.message);
@@ -38,6 +44,7 @@ function MainPosts() {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchPosts();
@@ -67,7 +74,7 @@ function MainPosts() {
 
                 <aside className="w-1/4 bg-gray-100 p-6 rounded-xl sticky top-6 h-[calc(100vh-24px)] overflow-y-auto">
                     <Categories />
-                    <TrendingPosts />
+                    <TrendingPosts posts={trendingPosts} />
                 </aside>
             </div>
         </div>

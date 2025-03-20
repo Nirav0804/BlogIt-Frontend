@@ -9,7 +9,7 @@ function MainNavbar({ setSearchQuery }) {
   return (
     <>
       <nav className="top-0 left-0 w-full bg-[#4E3A59] text-white py-4 px-6 flex items-center justify-between shadow-md z-50">
-        <Link to="/" className="flex items-center gap-x-2">
+        <Link className="flex items-center gap-x-2">
           <span className="text-3xl font-bold text-white">BlogIt</span>
         </Link>
 
