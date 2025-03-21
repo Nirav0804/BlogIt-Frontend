@@ -35,7 +35,7 @@ function MainPosts() {
             console.log("Fetched posts:", response.data.posts);
             const sortedTrendingPosts = [...fetchedPosts]
                 .sort((a, b) => (b.likeCount + b.commentCount) - (a.likeCount + a.commentCount))
-                .slice(0, 5);
+                .slice(0, 8);
             setTrendingPosts(sortedTrendingPosts);
         } catch (error) {
             console.error("Error fetching posts:", error);
@@ -74,7 +74,7 @@ function MainPosts() {
 
                 <aside className="w-1/4 bg-gray-100 p-6 rounded-xl sticky top-6 h-[calc(100vh-24px)] overflow-y-auto">
                     <Categories />
-                    <TrendingPosts posts={trendingPosts} />
+                    <TrendingPosts posts={trendingPosts} isLoading={loading}/>
                 </aside>
             </div>
         </div>

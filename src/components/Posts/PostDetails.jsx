@@ -15,6 +15,7 @@ import {
 import { format } from "date-fns";
 import PostCard from "./PostCard";
 import MainNavbar from "../Navigation/MainNavbar";
+import ShimmerPostDetails from "./ShimmerPostDetails";
 
 // Separate components for better organization
 const UserAvatar = ({ user }) => {
@@ -316,7 +317,7 @@ function PostDetails({ postId }) {
     }
   };
 
-  if (loading) return <LoadingSkeleton />;
+  if (loading) return <ShimmerPostDetails />;
   if (error) return <ErrorDisplay error={error} navigate={navigate} />;
 
   return (

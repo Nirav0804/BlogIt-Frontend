@@ -1,24 +1,29 @@
 import React from "react";
-import { FaHeart, FaCommentAlt, FaThumbsUp } from "react-icons/fa"; // Icons for likes & comments
+import { FaCommentAlt, FaThumbsUp } from "react-icons/fa"; // Icons for likes & comments
 import { Link } from "react-router-dom";
+import ShimmerTrendingPosts from "./ShimmerTrendingPosts";
 
-function TrendingPosts({ posts }) {
+function TrendingPosts({ posts, isLoading }) {
     return (
         <div className="mt-6">
             <h3 className="text-xl font-bold text-gray-700 mb-4">🔥 Trending Posts</h3>
-            <div className="flex flex-wrap gap-3">
-                {posts.map((post) => (
-                    <div key={post.id} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm flex items-center gap-3 cursor-pointer hover:bg-gray-400 w-full">
-                        <Link to={`/post/${post.id}`} className="no-underline text-inherit">
-                            <span className="font-medium">{post.title}</span>
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
-                                <FaThumbsUp className="text-red-500" /> {post.likeCount}
-                                <FaCommentAlt className="text-blue-500 ml-2" /> {post.commentCount}
-                            </div>
-                        </Link>
-                    </div>
-                ))}
-            </div>
+            {isLoading ? (
+                <ShimmerTrendingPosts />
+            ) : (
+                <div className="flex flex-wrap gap-3">
+                    {posts.map((post) => (
+                        <div key={post.id} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm flex items-center gap-3 cursor-pointer hover:bg-gray-400 w-full">
+                            <Link to={`/post/${post.id}`} className="no-underline text-inherit">
+                                <span className="font-medium">{post.title}</span>
+                                <div className="flex items-center gap-1 text-xs text-gray-600">
+                                    <FaThumbsUp className="text-red-500" /> {post.likeCount}
+                                    <FaCommentAlt className="text-blue-500 ml-2" /> {post.commentCount}
+                                </div>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
